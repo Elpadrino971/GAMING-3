@@ -1,0 +1,25 @@
+{
+  "name": "@pokermind/multiplayer",
+  "version": "1.0.0",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "server": "node dist/server/index.js",
+    "test": "jest"
+  },
+  "dependencies": {
+    "socket.io": "^4.6.0",
+    "socket.io-client": "^4.6.0",
+    "@pokermind/poker-engine": "*",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.5",
+    "@types/uuid": "^9.0.7",
+    "typescript": "^5.3.3",
+    "jest": "^29.7.0",
+    "@types/jest": "^29.5.11"
+  }
+}
