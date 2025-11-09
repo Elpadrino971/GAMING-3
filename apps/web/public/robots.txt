@@ -1,0 +1,18 @@
+# PokerMind - Robots.txt
+
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://pokermind.app/sitemap.xml
+
+# Disallow admin/internal pages
+Disallow: /api/
+Disallow: /_next/
+
+# Allow public pages
+Allow: /
+Allow: /lobby
+Allow: /achievements
+Allow: /pro-marketplace
+Allow: /stats
