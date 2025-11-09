@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 import { getSocketManager } from '@pokermind/multiplayer';
 import type { Table } from '@pokermind/multiplayer';
+import SearchingAnimation from '@/components/poker/SearchingAnimation';
 
 // Disable static generation
 export const dynamic = 'force-dynamic';
@@ -319,20 +320,11 @@ export default function MultiplayerLobbyPage() {
                         </button>
                       </>
                     ) : (
-                      /* Searching Animation */
-                      <div className="text-center py-12">
-                        <div className="text-6xl mb-4 animate-bounce">🔍</div>
-                        <h3 className="text-2xl font-bold text-white mb-2">Searching for players...</h3>
-                        <p className="text-gray-400 mb-6">
-                          Stakes: {selectedStakes.label} | Buy-in: {buyInAmount}
-                        </p>
-                        <button
-                          onClick={handleCancelSearch}
-                          className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-semibold transition"
-                        >
-                          Cancel Search
-                        </button>
-                      </div>
+                      <SearchingAnimation
+                        stakes={selectedStakes.label}
+                        buyIn={buyInAmount}
+                        onCancel={handleCancelSearch}
+                      />
                     )}
                   </div>
                 )}

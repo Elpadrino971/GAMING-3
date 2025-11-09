@@ -5,7 +5,9 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
 import { getSocketManager } from '@pokermind/multiplayer';
-import PokerTable from '@/components/poker/PokerTable';
+import MultiplayerTable from '@/components/poker/MultiplayerTable';
+import WinnerCelebration from '@/components/poker/WinnerCelebration';
+import TableLoadingAnimation from '@/components/poker/TableLoadingAnimation';
 import ActionButtons from '@/components/poker/ActionButtons';
 import { PlayerAction } from '@pokermind/poker-engine/src/game-state';
 
@@ -149,14 +151,7 @@ export default function PlayMultiplayerPage() {
   };
 
   if (!connected || !gameState) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center">
-        <div className="text-center">
-          <div className="text-6xl mb-4 animate-spin">🎰</div>
-          <p className="text-white text-xl">Connecting to table...</p>
-        </div>
-      </div>
-    );
+    return <TableLoadingAnimation />;
   }
 
   const humanPlayer = players.find(p => p.id === user?.id);
@@ -199,7 +194,7 @@ export default function PlayMultiplayerPage() {
         <div className="grid grid-cols-4 gap-4">
           {/* Poker Table (3 columns) */}
           <div className="col-span-3">
-            <PokerTable
+            <MultiplayerTable
               players={players}
               communityCards={gameState.communityCards || []}
               pot={gameState.pots?.reduce((sum: number, pot: any) => sum + pot.amount, 0) || 0}
@@ -260,34 +255,16 @@ export default function PlayMultiplayerPage() {
           </div>
         </div>
 
-        {/* Winner Modal */}
+        {/* Winner Celebration */}
         {showWinner && winners.length > 0 && (
-          <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
-            <motion.div
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              className="bg-gray-800 rounded-2xl p-8 max-w-md w-full border-4 border-yellow-400"
-            >
-              <h2 className="text-3xl font-bold text-yellow-400 mb-6 text-center">
-                🏆 Hand Complete
-              </h2>
-
-              {winners.map((winner, index) => (
-                <div key={index} className="text-center mb-4">
-                  <p className="text-2xl font-bold text-white mb-2">{winner.playerName}</p>
-                  <p className="text-xl text-green-400 font-semibold">Won {winner.amount} chips</p>
-                  <p className="text-gray-400">{winner.handRank}</p>
-                </div>
-              ))}
-
-              <button
-                onClick={handleNextHand}
-                className="w-full bg-gradient-to-r from-yellow-400 to-yellow-500 text-gray-900 py-3 rounded-xl font-bold text-lg hover:from-yellow-500 hover:to-yellow-600 transition mt-6"
-              >
-                Continue
-              </button>
-            </motion.div>
-          </div>
+          <WinnerCelebration
+            winner={{
+              playerName: winners[0].playerName,
+              amount: winners[0].amount,
+              handRank: winners[0].handRank,
+            }}
+            onComplete={handleNextHand}
+          />
         )}
       </div>
     </div>
