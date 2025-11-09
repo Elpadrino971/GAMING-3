@@ -426,8 +426,8 @@ export class GameEngine {
     winner.stack += totalPot;
 
     this.state.winners = [{
-      playerId: winner.player.id,
-      playerName: winner.player.name,
+      playerId: winner.id,
+      playerName: winner.name,
       amount: totalPot,
       handRank: playersWithHands[0].handResult.name
     }];

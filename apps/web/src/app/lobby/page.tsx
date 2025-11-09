@@ -6,6 +6,9 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
+// Disable static generation for this auth-required page
+export const dynamic = 'force-dynamic';
+
 type GameMode = 'cash' | 'sng';
 
 interface Stakes {

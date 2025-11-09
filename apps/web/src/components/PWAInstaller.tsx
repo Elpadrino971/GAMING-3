@@ -10,8 +10,15 @@ import { motion, AnimatePresence } from 'framer-motion';
 export default function PWAInstaller() {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [showInstallPrompt, setShowInstallPrompt] = useState(false);
+  const [dismissed, setDismissed] = useState(false);
 
   useEffect(() => {
+    // Check if dismissed in session
+    if (typeof window !== 'undefined') {
+      const isDismissed = sessionStorage.getItem('install-prompt-dismissed') === 'true';
+      setDismissed(isDismissed);
+    }
+
     // Register service worker
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
@@ -72,12 +79,15 @@ export default function PWAInstaller() {
 
   const handleDismiss = () => {
     setShowInstallPrompt(false);
+    setDismissed(true);
     // Don't show again for this session
-    sessionStorage.setItem('install-prompt-dismissed', 'true');
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem('install-prompt-dismissed', 'true');
+    }
   };
 
   // Don't show if already dismissed this session
-  if (typeof window !== 'undefined' && sessionStorage.getItem('install-prompt-dismissed')) {
+  if (dismissed) {
     return null;
   }
 

@@ -8,6 +8,9 @@ import Link from 'next/link';
 import { ACHIEVEMENTS, getTierColor, getTierBadge, checkAchievement } from '@/lib/achievements';
 import { useProgression } from '@/hooks/useProgression';
 
+// Disable static generation for this auth-required page
+export const dynamic = 'force-dynamic';
+
 /**
  * Achievements page - voir tous les achievements
  */

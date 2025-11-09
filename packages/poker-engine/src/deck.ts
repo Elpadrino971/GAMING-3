@@ -49,6 +49,15 @@ export class Deck {
   }
 
   /**
+   * Alias for dealOne()
+   */
+  deal(): Card {
+    const card = this.cards.pop();
+    if (!card) throw new Error('No cards left in deck');
+    return card;
+  }
+
+  /**
    * Tire plusieurs cartes
    */
   dealMany(count: number): Card[] {

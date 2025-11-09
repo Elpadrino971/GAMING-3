@@ -9,6 +9,9 @@ import { useMyCoaches } from '@/hooks/useProComparison';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 
+// Disable static generation for this auth-required page
+export const dynamic = 'force-dynamic';
+
 /**
  * Page principale du jeu de poker
  */

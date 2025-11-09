@@ -53,7 +53,10 @@ export class HandEvaluator {
       return 0;
     });
 
-    return evaluations[0];
+    return {
+      hand: evaluations[0].cards,
+      strength: evaluations[0].strength
+    };
   }
 
   /**

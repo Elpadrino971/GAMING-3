@@ -1,4 +1,4 @@
-import { Card } from './deck';
+import { Card } from './types';
 
 /**
  * Position à la table

@@ -514,8 +514,15 @@ export class AIPlayer {
    * Vérifie si le joueur était le dernier agresseur
    */
   private wasLastAggressor(state: GameState, player: Player): boolean {
+    // Get previous street enum value
+    const streetOrder = [Street.PRE_FLOP, Street.FLOP, Street.TURN, Street.RIVER];
+    const currentStreetIndex = streetOrder.indexOf(state.currentStreet);
+    const previousStreet = currentStreetIndex > 0 ? streetOrder[currentStreetIndex - 1] : null;
+
+    if (!previousStreet) return false;
+
     const lastAction = state.actionHistory
-      .filter(a => a.street === state.currentStreet - 1) // Street précédente
+      .filter(a => a.street === previousStreet)
       .reverse()
       .find(a => a.action === PlayerAction.RAISE);
 

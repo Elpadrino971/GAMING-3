@@ -427,7 +427,8 @@ export class PatternDetector {
     let currentStreak: { start: number; end: number } | null = null;
 
     for (let i = 0; i < hands.length; i++) {
-      const isLoss = !hands[i].wonAmount || hands[i].wonAmount < 0;
+      const wonAmount = hands[i].wonAmount ?? 0;
+      const isLoss = wonAmount <= 0;
 
       if (isLoss) {
         if (!currentStreak) {
