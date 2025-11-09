@@ -28,7 +28,8 @@
     "expo-haptics": "~12.8.1",
     "@react-native-community/slider": "4.4.2",
     "@pokermind/poker-engine": "*",
-    "@pokermind/ai-engine": "*"
+    "@pokermind/ai-engine": "*",
+    "@pokermind/multiplayer": "*"
   },
   "devDependencies": {
     "@babel/core": "^7.23.7",

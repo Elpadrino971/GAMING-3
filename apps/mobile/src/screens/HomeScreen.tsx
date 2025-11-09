@@ -84,6 +84,13 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
 
         <TouchableOpacity
           style={styles.secondaryButton}
+          onPress={() => navigation.navigate('MultiplayerLobby')}
+        >
+          <Text style={styles.secondaryButtonText}>🌐 Multiplayer</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.secondaryButton}
           onPress={() => navigation.navigate('Achievements')}
         >
           <Text style={styles.secondaryButtonText}>🏆 Achievements</Text>

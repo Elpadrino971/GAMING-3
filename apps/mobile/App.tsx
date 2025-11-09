@@ -10,6 +10,8 @@ import LobbyScreen from './src/screens/LobbyScreen';
 import PlayScreen from './src/screens/PlayScreen';
 import AchievementsScreen from './src/screens/AchievementsScreen';
 import ProMarketplaceScreen from './src/screens/ProMarketplaceScreen';
+import MultiplayerLobbyScreen from './src/screens/MultiplayerLobbyScreen';
+import PlayMultiplayerScreen from './src/screens/PlayMultiplayerScreen';
 
 export type RootStackParamList = {
   Home: undefined;
@@ -22,6 +24,10 @@ export type RootStackParamList = {
   };
   Achievements: undefined;
   ProMarketplace: undefined;
+  MultiplayerLobby: undefined;
+  PlayMultiplayer: {
+    tableId: string;
+  };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -43,6 +49,8 @@ export default function App() {
           <Stack.Screen name="Play" component={PlayScreen} />
           <Stack.Screen name="Achievements" component={AchievementsScreen} />
           <Stack.Screen name="ProMarketplace" component={ProMarketplaceScreen} />
+          <Stack.Screen name="MultiplayerLobby" component={MultiplayerLobbyScreen} />
+          <Stack.Screen name="PlayMultiplayer" component={PlayMultiplayerScreen} />
         </Stack.Navigator>
       </NavigationContainer>
       <StatusBar style="light" />
