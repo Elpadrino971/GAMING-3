@@ -1,0 +1,231 @@
+// Extension du schéma pour la Pro Knowledge Base
+// À fusionner avec schema.prisma principal
+
+model ProPlayer {
+  id            String   @id @default(cuid())
+  name          String   @unique
+  nickname      String?
+
+  // Infos du joueur
+  country       String
+  totalWinnings Float    // en millions $
+  braceletCount Int      @default(0) // WSOP bracelets
+  mainEvents    Int      @default(0)
+
+  // Style de jeu
+  playStyle     ProPlayStyle
+  specialty     String[] // ["Cash Game", "Tournament", "High Stakes"]
+
+  // Profil
+  bio           String
+  photoUrl      String?
+  verified      Boolean  @default(false)
+
+  // Stats
+  vpipAvg       Float?
+  pfrAvg        Float?
+  aggressionAvg Float?
+
+  // Relations
+  tips          ProTip[]
+  strategies    ProStrategy[]
+  videos        ProVideo[]
+  books         ProBook[]
+  purchases     ProPurchase[]
+
+  // Métadonnées
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([name])
+  @@index([playStyle])
+}
+
+model ProTip {
+  id            String   @id @default(cuid())
+  proPlayerId   String
+  proPlayer     ProPlayer @relation(fields: [proPlayerId], references: [id], onDelete: Cascade)
+
+  // Contenu du conseil
+  title         String
+  content       String   // Texte complet du conseil
+  category      TipCategory
+  situation     String   // "Pre-flop with AK in CO", "Facing 3-bet OOP", etc.
+
+  // Contexte
+  gameType      String   // "Cash", "Tournament", "Both"
+  stakes        String?  // "Low", "Mid", "High"
+  difficulty    Int      @default(1) // 1-5
+
+  // Métadonnées
+  source        String?  // "MasterClass", "YouTube", "Book: Super System"
+  sourceUrl     String?
+  popularity    Int      @default(0)
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([proPlayerId])
+  @@index([category])
+}
+
+model ProStrategy {
+  id            String   @id @default(cuid())
+  proPlayerId   String
+  proPlayer     ProPlayer @relation(fields: [proPlayerId], references: [id], onDelete: Cascade)
+
+  // Stratégie
+  name          String
+  description   String
+  fullContent   String   // Markdown complet de la stratégie
+
+  // Application
+  situations    String[] // Situations où appliquer
+  examples      String   // JSON: exemples de mains
+
+  // Niveau
+  requiredLevel String   // "Beginner", "Intermediate", "Advanced"
+  estimatedTime Int      // Minutes pour maîtriser
+
+  // Premium
+  isPremium     Boolean  @default(false)
+  price         Float?
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([proPlayerId])
+}
+
+model ProVideo {
+  id            String   @id @default(cuid())
+  proPlayerId   String
+  proPlayer     ProPlayer @relation(fields: [proPlayerId], references: [id], onDelete: Cascade)
+
+  // Vidéo
+  title         String
+  description   String
+  videoUrl      String
+  thumbnailUrl  String?
+  duration      Int      // Secondes
+
+  // Contenu
+  topics        String[] // ["Bluffing", "Position", "Range Reading"]
+  transcript    String?  // Transcription automatique
+  keyPoints     String   // JSON: points clés avec timestamps
+
+  // Premium
+  isPremium     Boolean  @default(false)
+  price         Float?
+  views         Int      @default(0)
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([proPlayerId])
+}
+
+model ProBook {
+  id            String   @id @default(cuid())
+  proPlayerId   String
+  proPlayer     ProPlayer @relation(fields: [proPlayerId], references: [id], onDelete: Cascade)
+
+  // Livre
+  title         String
+  description   String
+  coverUrl      String?
+  amazonUrl     String?
+
+  // Contenu extrait
+  keyLessons    String   // JSON: leçons principales
+  quotes        String   // JSON: citations marquantes
+  summary       String
+
+  // Métadonnées
+  publishedYear Int
+  pages         Int?
+  rating        Float?
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([proPlayerId])
+}
+
+model ProPurchase {
+  id            String   @id @default(cuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  proPlayerId   String
+  proPlayer     ProPlayer @relation(fields: [proPlayerId], references: [id], onDelete: Cascade)
+
+  // Achat
+  type          PurchaseType // COACH_STYLE, STRATEGY, VIDEO
+  itemId        String   // ID de la stratégie/vidéo achetée
+  price         Float
+
+  // Stripe
+  stripePaymentId String?
+
+  createdAt     DateTime @default(now())
+
+  @@index([userId])
+  @@index([proPlayerId])
+}
+
+model UserProProgress {
+  id            String   @id @default(cuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  proPlayerId   String
+
+  // Progression
+  lessonsCompleted Int   @default(0)
+  totalLessons  Int
+  currentLesson String?
+
+  // Performances
+  beforeIDI     Float?   // IDI avant de suivre ce pro
+  afterIDI      Float?   // IDI après
+  improvement   Float?   // % d'amélioration
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([userId, proPlayerId])
+  @@index([userId])
+}
+
+// Enums
+enum ProPlayStyle {
+  TIGHT_AGGRESSIVE  // TAG - Daniel Negreanu (early), Doyle Brunson
+  LOOSE_AGGRESSIVE  // LAG - Phil Ivey, Tom Dwan
+  TIGHT_PASSIVE     // Nit
+  LOOSE_PASSIVE     // Fish
+  BALANCED          // GTO - Fedor Holz, Charlie Carrel
+  EXPLOITATIVE      // Phil Hellmuth
+  MANIAC            // Gus Hansen (early)
+}
+
+enum TipCategory {
+  PRE_FLOP
+  POST_FLOP
+  BLUFFING
+  VALUE_BETTING
+  POSITION
+  RANGE_READING
+  BANKROLL_MANAGEMENT
+  TOURNAMENT_STRATEGY
+  CASH_GAME_STRATEGY
+  MENTAL_GAME
+  TELLS
+  ICM
+}
+
+enum PurchaseType {
+  COACH_STYLE
+  STRATEGY
+  VIDEO
+  BOOK_SUMMARY
+  LEARNING_PATH
+}
