@@ -267,4 +267,41 @@ router.get('/my-coaches/:userId', async (req, res, next) => {
   }
 });
 
+/**
+ * POST /api/pro-coach/style-match
+ * Trouve les pros qui jouent de façon similaire au joueur
+ */
+router.post('/style-match', async (req, res, next) => {
+  try {
+    const { stats } = req.body;
+
+    if (!stats) {
+      return res.status(400).json({ error: 'Stats required' });
+    }
+
+    // Importer le ProMatcher
+    const { ProMatcher } = await import('@pokermind/pro-knowledge');
+    const matcher = new ProMatcher();
+
+    // Trouver les pros similaires
+    const matches = matcher.findSimilarPros(stats, 5);
+
+    // Déterminer le style du joueur
+    const playerStyle = matcher.getPlayerStyle(stats);
+
+    // Recommander un coach pour amélioration
+    const recommendedCoach = matcher.recommendCoachForImprovement(stats);
+
+    res.json({
+      success: true,
+      playerStyle,
+      matches,
+      recommendedCoach
+    });
+  } catch (error) {
+    logger.error('Erreur style-match:', error);
+    next(error);
+  }
+});
+
 export default router;
