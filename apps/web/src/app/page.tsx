@@ -1,232 +1,288 @@
 'use client';
 
+import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useAuth } from '@/contexts/AuthContext';
 import Link from 'next/link';
-import { Brain, TrendingUp, Video, Zap, Trophy, Users } from 'lucide-react';
 
-export default function Home() {
+/**
+ * Page d'accueil de PokerMind
+ */
+export default function HomePage() {
+  const { user, isAuthenticated, login } = useAuth();
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [username, setUsername] = useState('');
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setShowLoginModal(true);
+    }
+  }, [isAuthenticated]);
+
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (username.trim().length >= 3) {
+      login(username.trim());
+      setShowLoginModal(false);
+    }
+  };
+
   return (
-    <main className="min-h-screen bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900 text-white">
-      {/* Hero Section */}
-      <div className="container mx-auto px-4 py-16">
-        <div className="text-center mb-16">
-          <h1 className="text-6xl font-bold mb-4 bg-gradient-to-r from-poker-gold to-yellow-500 bg-clip-text text-transparent">
-            PokerMind
-          </h1>
-          <p className="text-2xl text-gray-300 mb-8">
-            Assistant IA de Poker Révolutionnaire
-          </p>
-          <p className="text-xl text-gray-400 max-w-3xl mx-auto mb-12">
-            Transformez votre jeu avec un coach IA intelligent qui analyse vos décisions en temps réel,
-            vous aide à progresser et vous accompagne vers l'excellence.
-          </p>
+    <div className="min-h-screen bg-gradient-to-br from-poker-green via-emerald-800 to-green-900 relative overflow-hidden">
+      {/* Animated background particles */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {[...Array(20)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute w-2 h-2 bg-yellow-400/20 rounded-full"
+            initial={{
+              x: typeof window !== 'undefined' ? Math.random() * window.innerWidth : 0,
+              y: typeof window !== 'undefined' ? Math.random() * window.innerHeight : 0,
+            }}
+            animate={{
+              y: [0, -100, 0],
+              opacity: [0.2, 0.5, 0.2],
+            }}
+            transition={{
+              duration: 3 + Math.random() * 2,
+              repeat: Infinity,
+              delay: Math.random() * 2,
+            }}
+          />
+        ))}
+      </div>
 
-          <div className="flex gap-4 justify-center">
-            <Link
-              href="/play"
-              className="px-8 py-4 bg-poker-gold text-gray-900 rounded-lg font-bold text-lg hover:bg-yellow-500 transition-colors"
+      {/* Main content */}
+      <div className="relative z-10">
+        {/* Header */}
+        <header className="container mx-auto px-4 py-6">
+          <div className="flex items-center justify-between">
+            <motion.div
+              initial={{ opacity: 0, x: -50 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="flex items-center space-x-3"
             >
-              Commencer à jouer
-            </Link>
-            <Link
-              href="/demo"
-              className="px-8 py-4 bg-gray-700 text-white rounded-lg font-bold text-lg hover:bg-gray-600 transition-colors"
-            >
-              Voir la démo
-            </Link>
+              <div className="w-12 h-12 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-xl flex items-center justify-center text-2xl shadow-lg">
+                🎰
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold text-white">PokerMind</h1>
+                <p className="text-yellow-400 text-sm">AI-Powered Poker Training</p>
+              </div>
+            </motion.div>
+
+            {isAuthenticated && user && (
+              <motion.div
+                initial={{ opacity: 0, x: 50 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="flex items-center space-x-4"
+              >
+                <div className="bg-gray-900/50 backdrop-blur-sm rounded-xl px-4 py-2 border border-gray-700">
+                  <div className="text-right">
+                    <p className="text-white font-semibold">{user.username}</p>
+                    <p className="text-yellow-400 text-sm">
+                      💰 {user.totalChips.toLocaleString()} chips
+                    </p>
+                  </div>
+                </div>
+                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-xl">
+                  {user.username[0].toUpperCase()}
+                </div>
+              </motion.div>
+            )}
           </div>
-        </div>
+        </header>
 
-        {/* Features Grid */}
-        <div className="grid md:grid-cols-3 gap-8 mb-16">
-          {/* Mode Coaching Léger */}
-          <div className="bg-gray-800 rounded-xl p-6 border border-gray-700 hover:border-poker-gold transition-colors">
-            <div className="flex items-center mb-4">
-              <Brain className="w-12 h-12 text-poker-gold mr-4" />
-              <h3 className="text-2xl font-bold">Coaching Léger</h3>
-            </div>
-            <p className="text-gray-400 mb-4">
-              Pour les débutants : conseils simples et rapides, apprentissage progressif adapté à votre style.
-            </p>
-            <ul className="space-y-2 text-gray-300">
-              <li>• Analyse de l'historique</li>
-              <li>• Conseils en temps réel</li>
-              <li>• Apprentissage adaptatif</li>
-            </ul>
-          </div>
-
-          {/* Mode Analyse Pro */}
-          <div className="bg-gray-800 rounded-xl p-6 border border-gray-700 hover:border-poker-gold transition-colors">
-            <div className="flex items-center mb-4">
-              <TrendingUp className="w-12 h-12 text-poker-gold mr-4" />
-              <h3 className="text-2xl font-bold">Analyse Pro</h3>
-            </div>
-            <p className="text-gray-400 mb-4">
-              Pour les intermédiaires : statistiques avancées, simulation GTO, recommandations personnalisées.
-            </p>
-            <ul className="space-y-2 text-gray-300">
-              <li>• VPIP, PFR, Aggression Factor</li>
-              <li>• Simulation GTO</li>
-              <li>• Analyse de range</li>
-            </ul>
-          </div>
-
-          {/* Mode Mentor Live */}
-          <div className="bg-gray-800 rounded-xl p-6 border border-gray-700 hover:border-poker-gold transition-colors">
-            <div className="flex items-center mb-4">
-              <Video className="w-12 h-12 text-poker-gold mr-4" />
-              <h3 className="text-2xl font-bold">Mentor Live</h3>
-            </div>
-            <p className="text-gray-400 mb-4">
-              Premium : analyse en direct, mode vocal, replay commenté façon documentaire.
-            </p>
-            <ul className="space-y-2 text-gray-300">
-              <li>• Analyse en direct</li>
-              <li>• Mode vocal</li>
-              <li>• Replay commenté</li>
-            </ul>
-          </div>
-        </div>
-
-        {/* Game Modes */}
-        <h2 className="text-4xl font-bold text-center mb-12">Modes de Jeu Innovants</h2>
-
-        <div className="grid md:grid-cols-2 gap-8 mb-16">
-          {/* Parties Live Assistées */}
-          <div className="bg-gradient-to-br from-poker-green to-poker-green-dark rounded-xl p-8 border-2 border-poker-gold">
-            <div className="flex items-center mb-4">
-              <Users className="w-10 h-10 text-poker-gold mr-4" />
-              <h3 className="text-2xl font-bold">Parties Live Assistées</h3>
-            </div>
-            <p className="text-gray-200 mb-4">
-              Jouez avec votre assistant IA personnel qui vous conseille discrètement pendant la partie.
-            </p>
-            <ul className="space-y-2 text-gray-200">
-              <li>✓ Conseils privés en temps réel</li>
-              <li>✓ IA neutre qui commente</li>
-              <li>✓ Apprentissage en jouant</li>
-            </ul>
-          </div>
-
-          {/* Coach Battle */}
-          <div className="bg-gradient-to-br from-poker-blue to-blue-900 rounded-xl p-8 border-2 border-poker-gold">
-            <div className="flex items-center mb-4">
-              <Zap className="w-10 h-10 text-poker-gold mr-4" />
-              <h3 className="text-2xl font-bold">Coach Battle</h3>
-            </div>
-            <p className="text-gray-200 mb-4">
-              Affrontement spectaculaire où les IA coaches débattent des meilleures stratégies en direct.
-            </p>
-            <ul className="space-y-2 text-gray-200">
-              <li>✓ Débats IA en temps réel</li>
-              <li>✓ Vote du public</li>
-              <li>✓ Très streamable</li>
-            </ul>
-          </div>
-
-          {/* Shadow Play */}
-          <div className="bg-gradient-to-br from-purple-900 to-purple-700 rounded-xl p-8 border-2 border-poker-gold">
-            <div className="flex items-center mb-4">
-              <Trophy className="w-10 h-10 text-poker-gold mr-4" />
-              <h3 className="text-2xl font-bold">Shadow Play</h3>
-            </div>
-            <p className="text-gray-200 mb-4">
-              Jouez virtuellement les mêmes mains qu'un pro et comparez vos décisions.
-            </p>
-            <ul className="space-y-2 text-gray-200">
-              <li>✓ Joue les mêmes mains qu'un pro</li>
-              <li>✓ Comparaison des décisions</li>
-              <li>✓ Parfait pour apprendre</li>
-            </ul>
-          </div>
-
-          {/* IDI Ranking */}
-          <div className="bg-gradient-to-br from-orange-900 to-red-900 rounded-xl p-8 border-2 border-poker-gold">
-            <div className="flex items-center mb-4">
-              <TrendingUp className="w-10 h-10 text-poker-gold mr-4" />
-              <h3 className="text-2xl font-bold">Classement IDI</h3>
-            </div>
-            <p className="text-gray-200 mb-4">
-              Indice de Décision Intelligente : classement basé sur vos décisions, pas votre chance.
-            </p>
-            <ul className="space-y-2 text-gray-200">
-              <li>✓ Mesure la qualité de décision</li>
-              <li>✓ Classement mondial</li>
-              <li>✓ Progression visible</li>
-            </ul>
-          </div>
-        </div>
-
-        {/* Pricing */}
-        <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold mb-12">Tarifs</h2>
-
-          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            {/* Free */}
-            <div className="bg-gray-800 rounded-xl p-8 border border-gray-700">
-              <h3 className="text-2xl font-bold mb-2">Gratuit</h3>
-              <p className="text-4xl font-bold text-poker-gold mb-6">0€</p>
-              <ul className="space-y-3 text-gray-300 text-left mb-8">
-                <li>✓ Mode Coaching Léger</li>
-                <li>✓ 10 analyses/mois</li>
-                <li>✓ Statistiques basiques</li>
-                <li>✓ Historique limité</li>
-              </ul>
-              <button className="w-full py-3 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-colors">
-                Commencer
-              </button>
-            </div>
-
-            {/* Pro */}
-            <div className="bg-gradient-to-br from-poker-gold to-yellow-600 rounded-xl p-8 border-2 border-yellow-400 transform scale-105">
-              <h3 className="text-2xl font-bold mb-2 text-gray-900">Pro</h3>
-              <p className="text-4xl font-bold text-gray-900 mb-6">9.99€<span className="text-lg">/mois</span></p>
-              <ul className="space-y-3 text-gray-900 text-left mb-8">
-                <li>✓ Mode Analyse Pro</li>
-                <li>✓ Analyses illimitées</li>
-                <li>✓ Statistiques avancées</li>
-                <li>✓ Simulation GTO</li>
-                <li>✓ Replay intelligent</li>
-              </ul>
-              <button className="w-full py-3 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors">
-                Choisir Pro
-              </button>
-            </div>
-
-            {/* Premium */}
-            <div className="bg-gray-800 rounded-xl p-8 border border-poker-gold">
-              <h3 className="text-2xl font-bold mb-2">Premium</h3>
-              <p className="text-4xl font-bold text-poker-gold mb-6">19.99€<span className="text-lg">/mois</span></p>
-              <ul className="space-y-3 text-gray-300 text-left mb-8">
-                <li>✓ Mode Mentor Live</li>
-                <li>✓ Tout de Pro +</li>
-                <li>✓ Coaching vocal</li>
-                <li>✓ Parties live assistées</li>
-                <li>✓ Coach Battle</li>
-                <li>✓ Shadow Play</li>
-              </ul>
-              <button className="w-full py-3 bg-poker-gold text-gray-900 rounded-lg hover:bg-yellow-500 transition-colors">
-                Choisir Premium
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* CTA */}
-        <div className="text-center bg-gradient-to-r from-poker-gold to-yellow-500 rounded-xl p-12">
-          <h2 className="text-4xl font-bold text-gray-900 mb-4">
-            Prêt à transformer votre jeu ?
-          </h2>
-          <p className="text-xl text-gray-800 mb-8">
-            Rejoignez des milliers de joueurs qui progressent avec PokerMind
-          </p>
-          <Link
-            href="/signup"
-            className="inline-block px-12 py-4 bg-gray-900 text-white rounded-lg font-bold text-lg hover:bg-gray-800 transition-colors"
+        {/* Hero section */}
+        <div className="container mx-auto px-4 py-12">
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="text-center mb-12"
           >
-            Créer un compte gratuit
-          </Link>
+            <h2 className="text-6xl font-bold text-white mb-4">
+              Learn Poker from the
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-yellow-600">
+                {' '}Legends
+              </span>
+            </h2>
+            <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
+              Play against intelligent AI, get coached by virtual pros, and master your game with real-time feedback.
+            </p>
+
+            {isAuthenticated && (
+              <div className="flex justify-center space-x-4">
+                <Link
+                  href="/lobby"
+                  className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold text-xl px-12 py-4 rounded-2xl shadow-2xl transition transform hover:scale-105"
+                >
+                  🎮 Play Now
+                </Link>
+                <Link
+                  href="/pro-marketplace"
+                  className="bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white font-bold text-xl px-12 py-4 rounded-2xl shadow-2xl transition transform hover:scale-105"
+                >
+                  🏆 Pro Coaches
+                </Link>
+              </div>
+            )}
+          </motion.div>
+
+          {/* Features grid */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+            <FeatureCard
+              icon="🤖"
+              title="5 AI Personalities"
+              description="Face different playing styles: Nit, TAG, LAG, Maniac, and Calling Station"
+              delay={0.3}
+            />
+            <FeatureCard
+              icon="🏆"
+              title="Pro Coaching"
+              description="Learn from legends like Phil Ivey, Daniel Negreanu, and Fedor Holz"
+              delay={0.4}
+            />
+            <FeatureCard
+              icon="📊"
+              title="Advanced Analytics"
+              description="Track VPIP, PFR, aggression factor, and compare with the pros"
+              delay={0.5}
+            />
+          </div>
+
+          {/* Stats section */}
+          {isAuthenticated && user && (
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6 }}
+              className="bg-gray-900/50 backdrop-blur-sm rounded-2xl p-8 border border-gray-700"
+            >
+              <h3 className="text-2xl font-bold text-white mb-6">Your Progress</h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                <StatCard label="Level" value={user.level.toString()} icon="⭐" />
+                <StatCard label="XP" value={`${user.xp}/${user.level * 100}`} icon="📈" />
+                <StatCard label="Hands Played" value={user.handsPlayed.toString()} icon="🃏" />
+                <StatCard
+                  label="Win Rate"
+                  value={user.handsPlayed > 0 ? `${Math.round((user.handsWon / user.handsPlayed) * 100)}%` : '0%'}
+                  icon="🎯"
+                />
+              </div>
+            </motion.div>
+          )}
+
+          {/* Quick links */}
+          <div className="mt-12 flex justify-center space-x-6">
+            <Link href="/pro-stats" className="text-yellow-400 hover:text-yellow-300 font-semibold transition">
+              📊 View Stats
+            </Link>
+            <Link href="/pro-marketplace" className="text-yellow-400 hover:text-yellow-300 font-semibold transition">
+              🏪 Pro Marketplace
+            </Link>
+            <a href="#" className="text-yellow-400 hover:text-yellow-300 font-semibold transition">
+              📚 Learn
+            </a>
+          </div>
         </div>
       </div>
-    </main>
+
+      {/* Login modal */}
+      <AnimatePresence>
+        {showLoginModal && !isAuthenticated && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 50 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 50 }}
+              className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-8 max-w-md w-full shadow-2xl border border-gray-700"
+            >
+              <div className="text-center mb-6">
+                <div className="w-20 h-20 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full mx-auto mb-4 flex items-center justify-center text-4xl">
+                  🎰
+                </div>
+                <h2 className="text-3xl font-bold text-white mb-2">Welcome to PokerMind</h2>
+                <p className="text-gray-400">Enter your username to get started</p>
+              </div>
+
+              <form onSubmit={handleLogin} className="space-y-4">
+                <div>
+                  <input
+                    type="text"
+                    placeholder="Username (min 3 characters)"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    className="w-full bg-gray-800 text-white border border-gray-700 rounded-xl px-4 py-3 focus:outline-none focus:border-yellow-400 transition"
+                    minLength={3}
+                    required
+                    autoFocus
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold py-4 rounded-xl transition transform hover:scale-105 shadow-xl"
+                  disabled={username.trim().length < 3}
+                >
+                  Start Playing 🚀
+                </button>
+              </form>
+
+              <div className="mt-6 text-center text-gray-500 text-sm">
+                <p>🎁 Starting bonus: 5,000 chips</p>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+/**
+ * Feature card component
+ */
+function FeatureCard({
+  icon,
+  title,
+  description,
+  delay
+}: {
+  icon: string;
+  title: string;
+  description: string;
+  delay: number;
+}) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay }}
+      whileHover={{ scale: 1.05, y: -5 }}
+      className="bg-gray-900/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700 hover:border-yellow-400 transition cursor-pointer"
+    >
+      <div className="text-5xl mb-4">{icon}</div>
+      <h3 className="text-xl font-bold text-white mb-2">{title}</h3>
+      <p className="text-gray-400">{description}</p>
+    </motion.div>
+  );
+}
+
+/**
+ * Stat card component
+ */
+function StatCard({ label, value, icon }: { label: string; value: string; icon: string }) {
+  return (
+    <div className="text-center">
+      <div className="text-3xl mb-2">{icon}</div>
+      <div className="text-3xl font-bold text-white mb-1">{value}</div>
+      <div className="text-gray-400 text-sm">{label}</div>
+    </div>
   );
 }

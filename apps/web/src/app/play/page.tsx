@@ -6,12 +6,16 @@ import { AIPlayer } from '@pokermind/ai-engine';
 import PokerTable from '@/components/poker/PokerTable';
 import InGameProComparison from '@/components/InGameProComparison';
 import { useMyCoaches } from '@/hooks/useProComparison';
+import { useAuth } from '@/contexts/AuthContext';
+import { useRouter } from 'next/navigation';
 
 /**
  * Page principale du jeu de poker
  */
 export default function PlayPage() {
-  const userId = 'human'; // TODO: get from auth
+  const { user, isAuthenticated } = useAuth();
+  const router = useRouter();
+  const userId = user?.id || 'human';
   const { activeCoach } = useMyCoaches(userId);
 
   const [gameEngine, setGameEngine] = useState<GameEngine | null>(null);
@@ -22,16 +26,40 @@ export default function PlayPage() {
   const [lastHandId, setLastHandId] = useState<string | null>(null);
   const [lastAction, setLastAction] = useState<string>('');
 
+  // Check auth
+  useEffect(() => {
+    if (!isAuthenticated) {
+      router.push('/');
+    }
+  }, [isAuthenticated, router]);
+
   // Initialize game
   useEffect(() => {
-    startNewGame();
-  }, []);
+    if (isAuthenticated) {
+      startNewGame();
+    }
+  }, [isAuthenticated]);
 
   const startNewGame = () => {
+    // Try to load config from lobby
+    const storedConfig = localStorage.getItem('pokermind_game_config');
+    let stakes = { smallBlind: 10, bigBlind: 20 };
+
+    if (storedConfig) {
+      try {
+        const gameConfig = JSON.parse(storedConfig);
+        if (gameConfig.stakes) {
+          stakes = gameConfig.stakes;
+        }
+      } catch (e) {
+        console.error('Failed to parse game config:', e);
+      }
+    }
+
     const config: GameConfig = {
       mode: 'cash',
-      smallBlind: 10,
-      bigBlind: 20,
+      smallBlind: stakes.smallBlind,
+      bigBlind: stakes.bigBlind,
       startingStack: 1000,
       maxPlayers: 6,
       aiCount: 5,
