@@ -1,0 +1,397 @@
+// Schéma de base de données PokerMind
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Modèles Utilisateurs
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  username      String    @unique
+  passwordHash  String
+  firstName     String?
+  lastName      String?
+  avatar        String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  profile       UserProfile?
+  sessions      Session[]
+  hands         Hand[]
+  achievements  Achievement[]
+  subscription  Subscription?
+  stats         UserStats?
+  coachSettings CoachSettings?
+
+  @@index([email])
+  @@index([username])
+}
+
+model UserProfile {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Préférences
+  preferredMode   CoachMode @default(LIGHT)
+  language        String    @default("fr")
+  timezone        String    @default("Europe/Paris")
+
+  // Niveau de jeu
+  skillLevel      SkillLevel @default(BEGINNER)
+  playStyle       PlayStyle?
+
+  // Préférences de coaching
+  voiceEnabled    Boolean   @default(false)
+  emotionalAnalysis Boolean @default(true)
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+model UserStats {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Statistiques globales
+  totalHands      Int      @default(0)
+  totalSessions   Int      @default(0)
+  totalWinnings   Float    @default(0)
+
+  // Statistiques de décision (IDI - Indice de Décision Intelligente)
+  idi             Float    @default(0)
+  optimalDecisions Int     @default(0)
+  suboptimalDecisions Int  @default(0)
+
+  // Statistiques de poker
+  vpip            Float?   // Voluntary Put In Pot
+  pfr             Float?   // Pre-Flop Raise
+  aggressionFactor Float?
+  cBetPercentage  Float?   // Continuation Bet
+  foldToCBet      Float?
+  threeBetPercentage Float?
+
+  // Tendances
+  bluffFrequency  Float?
+  valueRatio      Float?
+
+  // Progression
+  improvementRate Float    @default(0)
+  rank            Int?
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+// Sessions de jeu
+model Session {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Informations de session
+  startTime       DateTime @default(now())
+  endTime         DateTime?
+  duration        Int?     // en secondes
+
+  // Type de session
+  sessionType     SessionType
+  gameType        GameType
+
+  // Statistiques de session
+  handsPlayed     Int      @default(0)
+  totalBuyIn      Float
+  totalCashOut    Float?
+  profit          Float?
+
+  // Analyse IA
+  idi             Float?   // IDI de la session
+  emotionalState  EmotionalState?
+  tiltDetected    Boolean  @default(false)
+
+  // Relations
+  hands           Hand[]
+  replay          Replay?
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([userId])
+  @@index([startTime])
+}
+
+// Mains de poker
+model Hand {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sessionId       String
+  session         Session  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  // Informations de la main
+  handNumber      Int
+  timestamp       DateTime @default(now())
+
+  // Cartes
+  holeCards       String   // JSON: ["As", "Kh"]
+  communityCards  String?  // JSON: ["Qd", "Jc", "10s", "9h", "8d"]
+
+  // Position
+  position        Position
+  numPlayers      Int
+
+  // Actions
+  actions         String   // JSON: historique complet des actions
+  finalPot        Float
+  wonAmount       Float?
+
+  // Analyse IA
+  aiRecommendation String?  // JSON: recommandation de l'IA
+  playerDecision   String   // JSON: décision du joueur
+  isOptimal       Boolean?
+  optimality      Float?   // Score 0-1
+
+  // Contexte
+  stackSize       Float
+  potOdds         Float?
+  equity          Float?
+
+  // Relations
+  analysis        HandAnalysis?
+
+  createdAt       DateTime  @default(now())
+
+  @@index([userId])
+  @@index([sessionId])
+  @@index([timestamp])
+}
+
+// Analyse détaillée d'une main
+model HandAnalysis {
+  id              String   @id @default(cuid())
+  handId          String   @unique
+  hand            Hand     @relation(fields: [handId], references: [id], onDelete: Cascade)
+
+  // Analyse GTO
+  gtoAction       String   // JSON: action GTO optimale
+  gtoExplanation  String   // Explication textuelle
+
+  // Analyse de range
+  opponentRange   String?  // JSON: range estimé de l'adversaire
+  ownRange        String?  // JSON: range représenté
+
+  // Erreurs détectées
+  mistakes        String?  // JSON: liste des erreurs
+  suggestions     String   // JSON: suggestions d'amélioration
+
+  // Métriques
+  expectedValue   Float?   // EV de l'action
+  alternativeEVs  String?  // JSON: EV des autres actions possibles
+
+  // Mode pédagogique
+  lessonGenerated String?  // Leçon générée pour cette main
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+// Replays de sessions
+model Replay {
+  id              String   @id @default(cuid())
+  sessionId       String   @unique
+  session         Session  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  // Vidéo/Données
+  videoUrl        String?
+  dataJson        String   // JSON: données complètes du replay
+
+  // Analyse IA
+  aiCommentary    String   // JSON: commentaires IA par timestamp
+  keyMoments      String   // JSON: moments clés identifiés
+
+  // Métriques
+  overallScore    Float
+  highlights      String   // JSON: meilleurs moments
+  lowlights       String   // JSON: erreurs majeures
+
+  // Premium
+  isPremium       Boolean  @default(false)
+  views           Int      @default(0)
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+// Paramètres de coaching
+model CoachSettings {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Mode de coaching
+  currentMode     CoachMode @default(LIGHT)
+
+  // Personnalisation
+  coachPersonality String  @default("balanced") // balanced, aggressive, conservative
+  explanationLevel String  @default("simple")   // simple, detailed, expert
+
+  // Fonctionnalités activées
+  realTimeAlerts  Boolean  @default(true)
+  postHandAnalysis Boolean @default(true)
+  emotionalTracking Boolean @default(false)
+  voiceCoaching   Boolean  @default(false)
+
+  // Préférences d'apprentissage
+  focusAreas      String?  // JSON: domaines à améliorer en priorité
+  learningPath    String?  // JSON: parcours d'apprentissage personnalisé
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+// Abonnements
+model Subscription {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Type d'abonnement
+  tier            SubscriptionTier
+  status          SubscriptionStatus @default(ACTIVE)
+
+  // Dates
+  startDate       DateTime @default(now())
+  endDate         DateTime?
+  renewalDate     DateTime?
+
+  // Paiement
+  stripeCustomerId String?
+  stripeSubscriptionId String?
+
+  // Utilisation
+  monthlyAnalyses Int      @default(0)
+  monthlyLiveHours Float   @default(0)
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+// Achievements/Trophées
+model Achievement {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Type d'achievement
+  type            AchievementType
+  name            String
+  description     String
+  icon            String
+
+  // Progression
+  progress        Int      @default(0)
+  target          Int
+  completed       Boolean  @default(false)
+  completedAt     DateTime?
+
+  // Récompense
+  rewardType      String?
+  rewardValue     String?
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([userId])
+}
+
+// Enums
+enum CoachMode {
+  LIGHT       // Mode Coaching Léger
+  PRO         // Mode Analyse Pro
+  MENTOR      // Mode Mentor Live
+}
+
+enum SkillLevel {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+  EXPERT
+  PROFESSIONAL
+}
+
+enum PlayStyle {
+  TIGHT_PASSIVE
+  TIGHT_AGGRESSIVE
+  LOOSE_PASSIVE
+  LOOSE_AGGRESSIVE
+  BALANCED
+}
+
+enum SessionType {
+  PRACTICE      // Pratique/Entraînement
+  CASH_GAME     // Partie d'argent
+  TOURNAMENT    // Tournoi
+  SIT_AND_GO    // Sit & Go
+  LIVE_STREAM   // Live stream
+  COACH_BATTLE  // Coach Battle
+  SHADOW_PLAY   // Shadow Play
+}
+
+enum GameType {
+  TEXAS_HOLDEM
+  OMAHA
+  SEVEN_CARD_STUD
+  FIVE_CARD_DRAW
+}
+
+enum Position {
+  SMALL_BLIND
+  BIG_BLIND
+  UNDER_THE_GUN
+  MIDDLE_POSITION
+  CUTOFF
+  BUTTON
+}
+
+enum EmotionalState {
+  CALM
+  FOCUSED
+  EXCITED
+  ANXIOUS
+  TILTED
+  FRUSTRATED
+  CONFIDENT
+}
+
+enum SubscriptionTier {
+  FREE
+  BASIC
+  PRO
+  PREMIUM
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELLED
+  EXPIRED
+  PAUSED
+}
+
+enum AchievementType {
+  HANDS_PLAYED
+  SESSIONS_COMPLETED
+  IDI_MILESTONE
+  WINNINGS
+  PERFECT_SESSION
+  LEARNING_PATH
+  TOURNAMENT_WIN
+  SPECIAL_EVENT
+}

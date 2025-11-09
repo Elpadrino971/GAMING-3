@@ -1,0 +1,83 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-rgb: 255, 255, 255;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --foreground-rgb: 255, 255, 255;
+    --background-rgb: 10, 10, 10;
+  }
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: rgb(var(--background-rgb));
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+/* Poker card styles */
+.card {
+  @apply relative w-16 h-24 bg-white rounded-lg shadow-md border-2 border-gray-300;
+  @apply flex items-center justify-center font-bold text-2xl;
+}
+
+.card.hearts,
+.card.diamonds {
+  @apply text-red-600;
+}
+
+.card.clubs,
+.card.spades {
+  @apply text-gray-900;
+}
+
+/* Poker table styles */
+.poker-table {
+  @apply relative bg-gradient-to-br from-poker-green to-poker-green-dark;
+  @apply rounded-full shadow-2xl;
+}
+
+/* Coach overlay */
+.coach-overlay {
+  @apply fixed bottom-4 right-4 bg-white dark:bg-gray-800;
+  @apply rounded-lg shadow-xl p-4 max-w-sm;
+  @apply border-2 border-poker-gold;
+  animation: slideUp 0.3s ease-out;
+}
+
+/* Loading animation */
+.loading-dots {
+  @apply inline-flex space-x-1;
+}
+
+.loading-dots span {
+  @apply w-2 h-2 bg-poker-gold rounded-full;
+  animation: bounce 1.4s infinite ease-in-out;
+}
+
+.loading-dots span:nth-child(1) {
+  animation-delay: -0.32s;
+}
+
+.loading-dots span:nth-child(2) {
+  animation-delay: -0.16s;
+}
+
+@keyframes bounce {
+  0%, 80%, 100% {
+    transform: scale(0);
+  }
+  40% {
+    transform: scale(1);
+  }
+}
