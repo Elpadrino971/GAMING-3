@@ -1,0 +1,20 @@
+{
+  "name": "@pokermind/replay-engine",
+  "version": "1.0.0",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch"
+  },
+  "dependencies": {
+    "fluent-ffmpeg": "^2.1.2",
+    "canvas": "^2.11.2",
+    "gifencoder": "^2.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.5",
+    "@types/fluent-ffmpeg": "^2.1.24",
+    "typescript": "^5.3.3"
+  }
+}
