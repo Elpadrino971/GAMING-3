@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface SearchingAnimationProps {
   stakes: string;
@@ -10,6 +11,8 @@ interface SearchingAnimationProps {
 }
 
 export default function SearchingAnimation({ stakes, buyIn, onCancel }: SearchingAnimationProps) {
+  const { t } = useLanguage();
+
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.9 }}
@@ -113,15 +116,15 @@ export default function SearchingAnimation({ stakes, buyIn, onCancel }: Searchin
           repeat: Infinity,
         }}
       >
-        Searching for players...
+        {t('searchingForPlayers')}
       </motion.h3>
 
       {/* Match details */}
       <div className="bg-gray-700/50 rounded-lg px-6 py-3 inline-block mb-6">
         <p className="text-gray-300">
-          <span className="font-bold text-yellow-400">{stakes}</span> Stakes
+          <span className="font-bold text-yellow-400">{stakes}</span> {t('stakes')}
           <span className="mx-2">•</span>
-          Buy-in: <span className="font-bold text-green-400">{buyIn}</span> chips
+          {t('buyIn')}: <span className="font-bold text-green-400">{buyIn}</span> {t('chips')}
         </p>
       </div>
 
@@ -151,7 +154,7 @@ export default function SearchingAnimation({ stakes, buyIn, onCancel }: Searchin
         onClick={onCancel}
         className="bg-red-600 hover:bg-red-700 text-white px-8 py-3 rounded-xl font-semibold transition shadow-lg"
       >
-        Cancel Search
+        {t('cancelSearch')}
       </motion.button>
 
       {/* Tips */}
@@ -161,7 +164,7 @@ export default function SearchingAnimation({ stakes, buyIn, onCancel }: Searchin
         transition={{ delay: 2 }}
         className="mt-8 text-gray-400 text-sm"
       >
-        <p>💡 Tip: Matchmaking usually takes 10-30 seconds</p>
+        <p>💡 {t('matchmakingTip')}</p>
       </motion.div>
     </motion.div>
   );

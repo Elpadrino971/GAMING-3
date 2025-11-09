@@ -5,9 +5,11 @@ import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { getSocketManager } from '@pokermind/multiplayer';
 import type { Table } from '@pokermind/multiplayer';
 import SearchingAnimation from '@/components/poker/SearchingAnimation';
+import LanguageSelector from '@/components/LanguageSelector';
 
 // Disable static generation
 export const dynamic = 'force-dynamic';
@@ -24,6 +26,7 @@ const STAKES_OPTIONS = [
 
 export default function MultiplayerLobbyPage() {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const router = useRouter();
   const [gameMode, setGameMode] = useState<GameMode>('solo');
   const [multiplayerMode, setMultiplayerMode] = useState<MultiplayerMode>('quick');
@@ -146,11 +149,14 @@ export default function MultiplayerLobbyPage() {
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <Link href="/" className="text-yellow-400 hover:text-yellow-300 font-semibold">
-            ← Back to Home
+            ← {t('backToHome')}
           </Link>
-          <h1 className="text-4xl font-bold text-white">Game Lobby</h1>
-          <div className="bg-gray-800 rounded-full px-6 py-2">
-            <span className="text-yellow-400 font-bold">💰 {user?.totalChips || 0}</span>
+          <h1 className="text-4xl font-bold text-white">{t('gameLobby')}</h1>
+          <div className="flex items-center space-x-3">
+            <LanguageSelector />
+            <div className="bg-gray-800 rounded-full px-6 py-2">
+              <span className="text-yellow-400 font-bold">💰 {user?.totalChips || 0}</span>
+            </div>
           </div>
         </div>
 
@@ -166,7 +172,7 @@ export default function MultiplayerLobbyPage() {
                 : 'bg-gray-800 text-white hover:bg-gray-700'
             }`}
           >
-            🤖 Solo vs AI
+            🤖 {t('soloVsAI')}
           </motion.button>
           <motion.button
             whileHover={{ scale: 1.02 }}
@@ -178,7 +184,7 @@ export default function MultiplayerLobbyPage() {
                 : 'bg-gray-800 text-white hover:bg-gray-700'
             }`}
           >
-            👥 Multiplayer
+            👥 {t('multiplayer')}
           </motion.button>
         </div>
 
@@ -191,13 +197,13 @@ export default function MultiplayerLobbyPage() {
           >
             <div className="bg-gray-800 rounded-xl p-8 text-center">
               <p className="text-white text-xl mb-6">
-                Play against AI opponents and improve your skills
+                {t('playAgainstAI')}
               </p>
               <button
                 onClick={handleSoloPlay}
                 className="bg-gradient-to-r from-yellow-400 to-yellow-500 text-gray-900 px-8 py-4 rounded-xl font-bold text-lg hover:from-yellow-500 hover:to-yellow-600 transition"
               >
-                Continue to Solo Lobby →
+                {t('continueToSoloLobby')} →
               </button>
             </div>
           </motion.div>
@@ -215,16 +221,16 @@ export default function MultiplayerLobbyPage() {
               <div className="bg-yellow-500 text-gray-900 rounded-xl p-4 mb-6 text-center">
                 {connectionError ? (
                   <>
-                    <p className="font-bold">⚠️ {connectionError}</p>
+                    <p className="font-bold">⚠️ {t('connectionError')}</p>
                     <button
                       onClick={connectToServer}
                       className="mt-2 bg-gray-900 text-white px-4 py-2 rounded-lg font-semibold hover:bg-gray-800"
                     >
-                      Retry Connection
+                      {t('retryConnection')}
                     </button>
                   </>
                 ) : (
-                  <p className="font-bold">🔄 Connecting to multiplayer server...</p>
+                  <p className="font-bold">🔄 {t('connecting')}</p>
                 )}
               </div>
             )}
@@ -241,7 +247,7 @@ export default function MultiplayerLobbyPage() {
                         : 'bg-gray-800 text-white hover:bg-gray-700'
                     }`}
                   >
-                    ⚡ Quick Match
+                    ⚡ {t('quickMatch')}
                   </button>
                   <button
                     onClick={() => {
@@ -254,20 +260,20 @@ export default function MultiplayerLobbyPage() {
                         : 'bg-gray-800 text-white hover:bg-gray-700'
                     }`}
                   >
-                    📋 Browse Tables
+                    📋 {t('browseTables')}
                   </button>
                 </div>
 
                 {/* Quick Match */}
                 {multiplayerMode === 'quick' && (
                   <div className="bg-gray-800 rounded-xl p-8">
-                    <h2 className="text-2xl font-bold text-white mb-6">Quick Match</h2>
+                    <h2 className="text-2xl font-bold text-white mb-6">{t('quickMatch')}</h2>
 
                     {!searching ? (
                       <>
                         {/* Stakes Selection */}
                         <div className="mb-6">
-                          <label className="block text-white font-semibold mb-3">Stakes</label>
+                          <label className="block text-white font-semibold mb-3">{t('stakes')}</label>
                           <div className="grid grid-cols-4 gap-3">
                             {STAKES_OPTIONS.map((stakes) => (
                               <button
@@ -294,7 +300,7 @@ export default function MultiplayerLobbyPage() {
                         {/* Buy-in Amount */}
                         <div className="mb-6">
                           <label className="block text-white font-semibold mb-3">
-                            Buy-in: {buyInAmount} chips
+                            {t('buyInAmount', { amount: buyInAmount.toString() })}
                           </label>
                           <input
                             type="range"
@@ -316,7 +322,7 @@ export default function MultiplayerLobbyPage() {
                           onClick={handleQuickMatch}
                           className="w-full bg-gradient-to-r from-yellow-400 to-yellow-500 text-gray-900 py-4 rounded-xl font-bold text-xl hover:from-yellow-500 hover:to-yellow-600 transition"
                         >
-                          Find Match
+                          {t('findMatch')}
                         </button>
                       </>
                     ) : (
@@ -333,19 +339,19 @@ export default function MultiplayerLobbyPage() {
                 {multiplayerMode === 'browse' && (
                   <div className="bg-gray-800 rounded-xl p-8">
                     <div className="flex justify-between items-center mb-6">
-                      <h2 className="text-2xl font-bold text-white">Available Tables</h2>
+                      <h2 className="text-2xl font-bold text-white">{t('availableTables')}</h2>
                       <button
                         onClick={refreshTables}
                         className="bg-green-700 hover:bg-green-600 text-white px-4 py-2 rounded-lg font-semibold transition"
                       >
-                        🔄 Refresh
+                        🔄 {t('refresh')}
                       </button>
                     </div>
 
                     {availableTables.length === 0 ? (
                       <div className="text-center py-12">
-                        <p className="text-gray-400 text-lg">No tables available</p>
-                        <p className="text-gray-500 text-sm mt-2">Try Quick Match instead!</p>
+                        <p className="text-gray-400 text-lg">{t('noTables')}</p>
+                        <p className="text-gray-500 text-sm mt-2">{t('tryQuickMatch')}</p>
                       </div>
                     ) : (
                       <div className="space-y-4">
@@ -357,9 +363,9 @@ export default function MultiplayerLobbyPage() {
                             <div>
                               <h3 className="text-white font-bold text-lg">{table.name}</h3>
                               <p className="text-gray-400 text-sm">
-                                Blinds: {table.smallBlind}/{table.bigBlind} |
-                                Players: {table.players.length}/{table.maxPlayers} |
-                                Buy-in: {table.minBuyIn}-{table.maxBuyIn}
+                                {t('blinds')}: {table.smallBlind}/{table.bigBlind} |
+                                {t('players')}: {table.players.length}/{table.maxPlayers} |
+                                {t('buyIn')}: {table.minBuyIn}-{table.maxBuyIn}
                               </p>
                             </div>
                             <button
@@ -371,7 +377,7 @@ export default function MultiplayerLobbyPage() {
                                   : 'bg-yellow-400 hover:bg-yellow-500 text-gray-900'
                               }`}
                             >
-                              {table.players.length >= table.maxPlayers ? 'Full' : 'Join Table'}
+                              {table.players.length >= table.maxPlayers ? t('full') : t('joinTable')}
                             </button>
                           </div>
                         ))}

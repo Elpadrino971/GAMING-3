@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from '@/contexts/AuthContext';
+import { LanguageProvider } from '@/contexts/LanguageContext';
 import PWAInstaller from '@/components/PWAInstaller';
 
 export const metadata: Metadata = {
@@ -39,11 +40,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="font-sans">
-        <AuthProvider>
-          {children}
-          <Toaster position="top-right" />
-          <PWAInstaller />
-        </AuthProvider>
+        <LanguageProvider>
+          <AuthProvider>
+            {children}
+            <Toaster position="top-right" />
+            <PWAInstaller />
+          </AuthProvider>
+        </LanguageProvider>
       </body>
     </html>
   );
