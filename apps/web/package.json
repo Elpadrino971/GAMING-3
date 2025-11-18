@@ -12,6 +12,8 @@
     "@pokermind/ai-engine": "*",
     "@pokermind/database": "*",
     "@pokermind/multiplayer": "*",
+    "@react-three/drei": "^9.122.0",
+    "@react-three/fiber": "^8.18.0",
     "agora-rtc-react": "^2.1.0",
     "canvas-confetti": "^1.9.4",
     "framer-motion": "^10.16.16",
@@ -23,6 +25,7 @@
     "react-hot-toast": "^2.4.1",
     "recharts": "^2.10.3",
     "socket.io-client": "^4.6.0",
+    "three": "^0.160.1",
     "zustand": "^4.4.7"
   },
   "devDependencies": {
